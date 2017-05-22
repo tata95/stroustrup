@@ -1,0 +1,21 @@
+version: "2"
+services:
+  db_postgres:
+    image: postgres:9.6.1
+    restart: always
+    environment:
+      - POSTGRES_DB=stroustrup
+      - POSTGRES_USER=stroustrup
+      - POSTGRES_PASSWORD=stroustrup
+    volumes:
+      - ./postgres_db_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  # backend:
+  #   build: .
+  #   ports:
+  #     - "0.0.0.0:8000:8000"
+  #   restart: always
+  #   links:
+  #     - db_postgres
