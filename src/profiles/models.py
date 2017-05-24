@@ -4,13 +4,16 @@ import uuid
 from django.db import models
 from django.conf import settings
 
+from books.models import Book, BookCopy
+
 
 class BaseProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 primary_key=True)
     slug = models.UUIDField(default=uuid.uuid4, blank=True, editable=False)
-    # Add more user profile fields here. Make sure they are nullable
-    # or with default values
+
+    read_books = models.ManyToManyField(Book, blank=True)
+
     picture = models.ImageField('Profile picture',
                                 upload_to='profile_pics/%Y-%m-%d/',
                                 null=True,

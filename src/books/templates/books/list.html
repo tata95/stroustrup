@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}{{ block.super }}Books list{% endblock %}
+
+{% block navbar-left %}
+	{% include "_navbar.html" with active_link="books" %}
+{% endblock %}
+
+{% block container %}
+<div class="container text-page">
+	<div class="page-header"><h1>Books</h1>
+	{% if user.is_staff %}
+		<a href="{% url 'books:create' %}"><span class="badge">Create</span></a>
+	{% endif %}
+	</div>
+	<div class="row">
+		<div class="list-group">
+		{% for book in books %}
+			<div class="list-group-item">
+				<h2><a href="{% url 'books:details' book.isbn %}">{{ book.title }}</a></h2>
+				<p>Authors: {% for author in book.authors.all %}{{ author.full_name }}{% endfor %}</p>
+				<p>Publish_date: {{ book.publish_date }}</p>
+				<p>Genre: {{ book.genre }}</p>
+				{% if book.tags.all %}
+				<p>Tags: {% for tag in book.tags.all %}{{ tag }}{% endfor %}</p>
+				{% endif %}
+
+				{% if user.is_staff %}
+				<a href="{% url 'books:edit' book.isbn %}"><span class="badge">Edit</span></a>
+				<a href="{% url 'books:toggle' book.isbn %}"><span class="badge alert-warning">
+					{% if book.hidden %}Show{% else %}Hide{% endif %}
+				</span></a>
+				<a href="{% url 'books:delete' book.isbn %}"><span class="badge alert-danger">Delete</span></a>
+				{% endif %}
+
+			</div>
+		{% empty %}
+				No books found.
+		</div>
+		{% endfor %}
+		</div>
+	</div>
+
+	{% if books.has_other_pages %}
+		<ul class="pagination">
+			{% if books.has_previous %}
+				<li><a href="?page={{ books.previous_page_number }}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></a></li>
+				{% if not 1 in page_range %}
+					<li><a href="?page=1">1</a></li>
+				{% endif %}
+			{% else %}
+				<li class="disabled"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></li>
+			{% endif %}
+			{% for i in page_range %}
+				{% if books.number == i %}
+					<li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+				{% else %}
+					<li><a href="?page={{ i }}">{{ i }}</a></li>
+				{% endif %}
+			{% endfor %}
+			{% if books.has_next %}
+				{% if not books.paginator.num_pages in page_range %}
+					<li><a href="?page={{ books.paginator.num_pages }}">{{ books.paginator.num_pages }}</a></li>
+				{% endif %}
+				<li><a href="?page={{ books.next_page_number }}"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a></li>
+				
+			{% else %}
+				<li class="disabled"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></li>
+			{% endif %}
+		</ul>
+	{% endif %}
+</div>
+
+
+{% endblock %}

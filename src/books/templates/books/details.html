@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+
+{% block title %}{{ block.super }}Books list{% endblock %}
+
+{% block navbar-left %}
+  {% include "_navbar.html" with active_link="books" %}
+{% endblock %}
+
+{% block container %}
+<div class="container text-page">
+	<h1>{{ book.title }}</h1>
+	<p>ISBN: {{ book.isbn }}</p>
+	<p>Authors: {% for author in book.authors.all %}{{ author.full_name }}{% endfor %}</p>
+	<p>Pages: {{ book.pages }}</p>
+	<p>Publish_date: {{ book.publish_date }}</p>
+	<p>Publisher: {{ book.publisher }}</p>
+	<p>Language: {{ book.language }}</p>
+	<p>Genre: {{ book.genre }}</p>
+	{% if book.tags.all %}
+	<p>Tags: {% for tag in book.tags.all %}{{ tag }}{% endfor %}</p>
+	{% endif %}
+	<p>Description: {{ book.description }}</p>
+	{% if user.is_staff %}
+	<a href="{% url 'books:edit' book.isbn %}"><span class="badge">Edit</span></a>
+	<a href="{% url 'books:toggle' book.isbn %}"><span class="badge alert-warning">
+		{% if book.hidden %}Show{% else %}Hide{% endif %}
+	</span></a>
+	<a href="{% url 'books:delete' book.isbn %}"><span class="badge alert-danger">Delete</span></a>
+	{% endif %}
+</div>
+{% endblock %}

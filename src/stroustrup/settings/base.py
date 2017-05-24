@@ -70,7 +70,7 @@ INSTALLED_APPS = (
 
     'profiles',
     'accounts',
-
+    'books',
 )
 
 MIDDLEWARE_CLASSES = (
