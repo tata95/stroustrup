@@ -60,3 +60,6 @@ Desktop.ini
 
 # Docker compose DB storage
 ./postgres_db_data/
+
+# Avatars
+profile_pics/

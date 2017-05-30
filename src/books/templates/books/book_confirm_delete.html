@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+
+{% block title %}{{ block.super }}Confirm book delete{% endblock %}
+
+<!-- Benefits of the Django application -->
+{% block container %}
+
+<div class="container text-page">
+  <h1 class="text-primary">Confirm deletion</h1>
+  <hr>
+  <div class="row">
+    <div class="col-md-9">
+      <h3>Are you sure want to delete "{{ object }}"?</h3>
+      <form action="" method="post">{% csrf_token %}
+        <button type="submit" class="btn btn-danger">
+            Delete
+        </button>
+        <a class="btn" href="javascript: window.history.back()">
+            Cancel
+        </a>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

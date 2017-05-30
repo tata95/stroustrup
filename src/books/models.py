@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.urlresolvers import reverse
 
 User = get_user_model()
 
@@ -62,7 +63,22 @@ class Book(models.Model):
     # likes/dislikes
 
     def __str__(self):
-        return '{} ({}), ISBN: {}'.format(self.title, self.publish_date.year, self.isbn)
+        return '{0} ({1}) by {2} [ISBN: {3}]'.format(self.title, self.publish_date.year,
+                                                     self.authors_names, self.isbn)
+
+    def get_absolute_url(self):
+        return reverse('books:details', args=[self.isbn])
+
+    @property
+    def authors_names(self):
+        names = [x.full_name for x in self.authors.all()]
+        return ', '.join(names)
+
+
+class BookTag(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class BookCopy(models.Model):
@@ -72,3 +88,22 @@ class BookCopy(models.Model):
 
     def __str__(self):
         return '{} copy, ID: {}, condition: {}'.format(self.book.title, self.pk, self.condition)
+
+
+class BookComment(models.Model):
+    book = models.ForeignKey(Book)
+    body = models.TextField(null=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, related_name='comment')
+    blocked = models.BooleanField(default=False)
+    blocked_reason = models.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return '{}: {}'.format(self.user.username, self.body)
+
+
+class ReadersListRecord(models.Model):
+    user = models.ForeignKey(User)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    date_taken = models.DateTimeField(auto_now_add=True, blank=False)
+    date_returned = models.DateTimeField(blank=True)

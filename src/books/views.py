@@ -3,8 +3,18 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.contrib import messages
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.urls import reverse_lazy
 from . import forms
 from .models import Book
+
+
+class StaffOnlyView(object):
+
+    @method_decorator(user_passes_test(lambda u: u.is_staff))
+    def dispatch(self, request, *args, **kwargs):
+        return super(StaffOnlyView, self).dispatch(request, *args, **kwargs)
 
 
 def books_list(request):
@@ -32,88 +42,32 @@ def books_list(request):
                   context={'books': books, 'page_range': page_range})
 
 
-def book_details(request, isbn):
+class ViewBook(LoginRequiredMixin, generic.DetailView):
+    model = Book
     template_name = 'books/details.html'
-    book = get_object_or_404(Book, isbn=isbn)
-    return render(request, template_name, context={'book': book})
 
 
-def book_create(request):
-    pass
+class EditBook(StaffOnlyView, generic.edit.UpdateView):
+    template_name = 'books/edit.html'
+    model = Book
+    form_class = forms.BookForm
 
 
-def book_edit(request, isbn):
-    pass
+class CreateBook(StaffOnlyView, generic.CreateView):
+    template_name = 'books/create.html'
+    model = Book
+    form_class = forms.BookForm
 
 
+class DeleteBook(StaffOnlyView, generic.edit.DeleteView):
+    model = Book
+    success_url = reverse_lazy('books:list')
+
+
+@user_passes_test(lambda u: u.is_staff)
 def book_toggle_view(request, isbn):
     book = get_object_or_404(Book, isbn=isbn)
     book.hidden = not book.hidden
     book.save()
     messages.success(request, "Book '{}' has been {}".format(str(book), 'hidden' if book.hidden else 'shown'))
     return redirect('books:list')
-
-
-def book_delete(request, isbn):
-    book = get_object_or_404(Book, isbn=isbn)
-    book.delete()
-    messages.success(request, "Book '{}' has been deleted".format(str(book)))
-    return redirect('books:list')
-
-
-def add_to_readlist(request, isbn):
-    pass
-
-
-class EditBook(LoginRequiredMixin, generic.TemplateView):
-    template_name = 'books/edit.html'
-    http_method_names = ['get', 'post']
-
-    def get(self, request, *args, **kwargs):
-        if 'isbn' not in kwargs or not self.request.user.is_staff:
-            return redirect('books:list')
-        book = Book.objects.filter(isbn=kwargs['isbn']).first()
-        if 'book_form' not in kwargs:
-            kwargs['book_form'] = forms.BookForm(instance=book)
-        return super(EditBook, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        if 'isbn' not in kwargs or not self.request.user.is_staff:
-            return redirect('books:list')
-        book = Book.objects.filter(isbn=kwargs['isbn']).first()
-        book_form = forms.BookForm(request.POST, instance=book)
-        if not book_form.is_valid():
-            messages.error(request, 'There was a problem with the form. '
-                           'Please check the details.')
-            book_form = forms.BookForm(instance=book)
-            return super(EditBook, self).get(request,
-                                             book_form=book_form)
-        book = book_form.save()
-        messages.success(request, 'Book details saved!')
-        return redirect('books:details', isbn=book.isbn)
-
-
-class CreateBook(LoginRequiredMixin, generic.TemplateView):
-    template_name = 'books/create.html'
-    http_method_names = ['get', 'post']
-
-    def get(self, request, *args, **kwargs):
-        if not self.request.user.is_staff:
-            return redirect('books:list')
-        if 'book_form' not in kwargs:
-            kwargs['book_form'] = forms.BookForm()
-        return super(CreateBook, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        if not self.request.user.is_staff:
-            return redirect('books:list')
-        book_form = forms.BookForm(request.POST)
-        if not book_form.is_valid():
-            messages.error(request, 'There was a problem with the form. '
-                           'Please check the details.')
-            book_form = forms.BookForm()
-            return super(CreateBook, self).get(request,
-                                               book_form=book_form)
-        book = book_form.save()
-        messages.success(request, 'Book details saved!')
-        return redirect('books:details', isbn=book.isbn)

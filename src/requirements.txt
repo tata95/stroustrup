@@ -6,6 +6,7 @@ django-crispy-forms==1.6.1
 django-debug-toolbar==1.8
 django-environ==0.4.3
 easy-thumbnails==2.4.1
+isbnlib==3.6.8
 olefile==0.44
 packaging==16.8
 Pillow==4.1.1
