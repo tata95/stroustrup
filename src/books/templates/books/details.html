@@ -18,14 +18,13 @@
       <h1>{{ book.title }}</h1>
 
       {% if user.is_staff %}
-      <a href="{% url 'books:edit' book.isbn %}" class="btn btn-info">Edit</a>
       <a href="{% url 'books:toggle' book.isbn %}" class="btn btn-warning">
       	{% if book.hidden %}Show{% else %}Hide{% endif %}
       </a>
       <a href="{% url 'books:delete' book.isbn %}" class="btn btn-danger">Delete</a>
       {% endif %}
     </div>
-    <div class="col-sm-2"><img title="book picture" class="img-responsive" src="{% thumbnail 'default_profile.png' 140x140 crop %}">
+    <div class="col-sm-2"><img title="book picture" class="img-responsive" src="{% thumbnail book.picture|default:'default_profile.png' 140x140 crop %}">
     </div>
   </div>
 </div>
@@ -34,7 +33,8 @@
   <div class="row">
     <div class="col-sm-4">
       <ul class="list-group">
-        <li class="list-group-item text-muted">Information</li>
+        <li class="list-group-item text-right text-muted"><span class="pull-left">Information</span><a href="{% url 'books:edit' book.isbn %}" class="btn btn-xs btn-info">Edit</a>
+        </li>
 
         <li class="list-group-item text-right"><span class="pull-left"><strong>ISBN</strong></span> {{ book.isbn }}</li>
         <li class="list-group-item text-right"><span class="pull-left"><strong>Authors</strong></span> {{ book.authors_names }}</li>
@@ -70,8 +70,40 @@
       </div>
 
       <div class="panel panel-default">
-        <div class="panel-heading">Files</div>
-        <div class="panel-body"></div>
+        <div class="panel-heading">Files
+        <a href="{% url 'books:add_file' book.isbn %}"><span class="pull-right btn btn-xs btn-default">Add file</span></a></div>
+	        <div class="panel-body">
+	        <div class="table-responsive">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Description</th>
+								<th>File</th>
+								{# Header for actions #}
+								{% if user.is_staff %}
+								<th>Actions</th>
+								{% endif %}
+							</tr>
+						</thead>
+						<tbody>
+							{% for file in book.files.all %}
+							<tr>
+								<td>{{ file.name }}</td>
+								<td>{{ file.description }}</td>
+								<td><span class="glyphicon glyphicon-download-alt"></span> <a href="{{ file.file.url }}">{{ file.filename }}</a></td>
+								{# Actions for staff #}
+								<td>
+									<a href="{% url 'books:edit_file' file.pk %}" class="btn btn-xs btn-info">Edit</a>
+									<a href="{% url 'books:delete_file' file.pk %}" class="btn btn-xs btn-danger">Delete</a>
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+	        </div>
+
+	        </div>
       </div>
     </div>
   </div>

@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.layout import Layout, Div, Submit, HTML, Button, Row, Field
 from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions
 from crispy_forms.helper import FormHelper
-from .models import Book
+from .models import Book, BookFile
 
 
 class BookForm(forms.ModelForm):
@@ -21,23 +21,30 @@ class BookForm(forms.ModelForm):
             Field('authors'),
             Field('genre'),
             Field('tags'),
+            Field('picture'),
             Field('description'),
             Submit('save', 'Save', css_class="btn-success"),
-            )
+        )
 
     class Meta:
         model = Book
         fields = ['isbn', 'title', 'pages', 'publish_date', 'tags',
-                  'publisher', 'language', 'authors', 'genre']
+                  'publisher', 'language', 'authors', 'genre', 'picture']
 
 
-# isbn
-# description
-# title
-# pages
-# publish_date
-# publisher
-# language
-# # authors
-# # genre
-# # tags
+class BookFileForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(BookFileForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_tag = False
+        self.helper.layout = Layout(
+            Field('name'),
+            Field('description'),
+            Field('file'),
+            Submit('save', 'Save', css_class="btn-success"),
+        )
+
+    class Meta:
+        model = BookFile
+        fields = ['name', 'description', 'file']

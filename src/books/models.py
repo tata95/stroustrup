@@ -1,3 +1,4 @@
+import os
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -7,9 +8,12 @@ UP = 1
 DOWN = -1
 
 
-def book_directory_path(instance, filename):
-    # file will be uploaded to MEDIA_ROOT/isbn_<id>/<filename>
-    return 'isbn_{0}/{1}'.format(instance.isbn, filename)
+def book_picture_path(instance, filename):
+    return 'books/isbn_{0}/paperback.png'.format(instance.isbn)
+
+
+def book_files_path(instance, filename):
+    return 'books/isbn_{0}/{1}'.format(instance.book.isbn, filename)
 
 
 class Genre(models.Model):
@@ -66,11 +70,10 @@ class Book(models.Model):
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
     tags = models.ManyToManyField(Tag, blank=True)
     hidden = models.BooleanField(default=False)
-    # picture = models.ImageField('Book picture',
-    #                             upload_to=book_directory_path,
-    #                             null=True,
-    #                             blank=True)
-    # TODO: attachments
+    picture = models.ImageField('Book picture',
+                                upload_to=book_picture_path,
+                                null=True,
+                                blank=True)
 
     def __str__(self):
         return '{0} ({1}) by {2} [ISBN: {3}]'.format(self.title, self.publish_date.year,
@@ -92,6 +95,21 @@ class Book(models.Model):
     def authors_names(self):
         names = [x.full_name for x in self.authors.all()]
         return ', '.join(names)
+
+
+class BookFile(models.Model):
+    book = models.ForeignKey(Book, related_name='files',
+                             on_delete=models.CASCADE)
+    name = models.CharField(max_length=50)
+    description = models.CharField(max_length=100)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    file = models.FileField(upload_to=book_files_path)
+
+    def __str__(self):
+        return 'File "{}" for {}'.format(self.name, self.book)
+
+    def filename(self):
+        return os.path.basename(self.file.name)
 
 
 class Vote(models.Model):
@@ -116,10 +134,10 @@ class BookCopy(models.Model):
 
 
 class BookComment(models.Model):
-    book = models.ForeignKey(Book)
+    book = models.ForeignKey(Book, related_name='comments')
     body = models.TextField(null=False)
     timestamp = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, related_name='comment')
+    user = models.ForeignKey(User, related_name='comments')
     blocked = models.BooleanField(default=False)
     blocked_reason = models.CharField(max_length=200, null=True)
 

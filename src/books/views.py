@@ -8,7 +8,9 @@ from django.contrib.auth.decorators import user_passes_test, login_required
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from . import forms
-from .models import Book, Vote, UP, DOWN
+from .models import Book, Vote, BookFile, UP, DOWN
+
+import os
 
 
 class StaffOnlyView(object):
@@ -64,6 +66,15 @@ class DeleteBook(StaffOnlyView, generic.edit.DeleteView):
     model = Book
     success_url = reverse_lazy('books:list')
 
+    def delete(self, request, *args, **kwargs):
+        book = self.get_object()
+        for obj in book.files.all():
+            try:
+                obj.file.delete()
+            except:
+                pass
+        return super(DeleteBookFile, self).delete(request, *args, **kwargs)
+
 
 @user_passes_test(lambda u: u.is_staff)
 def book_toggle_view(request, isbn):
@@ -89,3 +100,32 @@ def vote_book(request, isbn, value=UP):
     vote.action = value
     vote.save()
     return HttpResponse('Your {}vote has been scored'.format('up' if value == UP else 'down'))
+
+
+class DeleteBookFile(StaffOnlyView, generic.edit.DeleteView):
+    model = BookFile
+    template_name = 'files/files_confirm_delete.html'
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('books:details', kwargs={'pk': self.book_pk})
+
+    def delete(self, request, *args, **kwargs):
+        obj = self.get_object()
+        self.book_pk = obj.book.pk
+        try:
+            obj.file.delete()
+        except:
+            pass
+        return super(DeleteBookFile, self).delete(request, *args, **kwargs)
+
+
+class EditBookFile(StaffOnlyView, generic.edit.UpdateView):
+    template_name = 'files/edit.html'
+    model = BookFile
+    form_class = forms.BookFileForm
+
+
+class AddBookFile(StaffOnlyView, generic.CreateView):
+    template_name = 'files/edit.html'
+    model = BookFile
+    form_class = forms.BookFileForm
