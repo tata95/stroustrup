@@ -9,4 +9,6 @@ urlpatterns = [
     url(r'^delete/(?P<pk>[0-9,a-z,A-Z]+)/$', views.DeleteBook.as_view(), name='delete'),
     url(r'^create$', views.CreateBook.as_view(success_url='list'), name='create'),
     url(r'^view/(?P<pk>[0-9,a-z,A-Z]+)/$', views.ViewBook.as_view(), name='details'),
+    url(r'^upvote/(?P<isbn>[0-9,a-z,A-Z]+)/$', views.vote_book, {'value': 1}, name='upvote'),
+    url(r'^downvote/(?P<isbn>[0-9,a-z,A-Z]+)/$', views.vote_book, {'value': -1}, name='downvote'),
 ]

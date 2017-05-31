@@ -6,8 +6,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.urls import reverse_lazy
+from django.http import HttpResponse
 from . import forms
-from .models import Book
+from .models import Book, Vote, UP, DOWN
 
 
 class StaffOnlyView(object):
@@ -42,7 +43,7 @@ def books_list(request):
                   context={'books': books, 'page_range': page_range})
 
 
-class ViewBook(LoginRequiredMixin, generic.DetailView):
+class ViewBook(generic.DetailView):
     model = Book
     template_name = 'books/details.html'
 
@@ -71,3 +72,20 @@ def book_toggle_view(request, isbn):
     book.save()
     messages.success(request, "Book '{}' has been {}".format(str(book), 'hidden' if book.hidden else 'shown'))
     return redirect('books:list')
+
+
+@login_required
+def vote_book(request, isbn, value=UP):
+    book = get_object_or_404(Book, isbn=isbn)
+    if value not in [DOWN, UP]:
+        return HttpResponse('Your vote is invalid')
+    vote = Vote.objects.filter(book=book, user=request.user).first()
+    if vote:
+        if vote.action == value:
+            vote.delete()
+            return HttpResponse('Your vote has been deleted')
+    else:
+        vote = Vote(book=book, user=request.user)
+    vote.action = value
+    vote.save()
+    return HttpResponse('Your {}vote has been scored'.format('up' if value == UP else 'down'))

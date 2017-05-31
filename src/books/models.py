@@ -3,6 +3,13 @@ from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
 
 User = get_user_model()
+UP = 1
+DOWN = -1
+
+
+def book_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/isbn_<id>/<filename>
+    return 'isbn_{0}/{1}'.format(instance.isbn, filename)
 
 
 class Genre(models.Model):
@@ -52,15 +59,18 @@ class Book(models.Model):
     authors = models.ManyToManyField(Author)
     description = models.TextField()
     title = models.CharField(max_length=300)
-    pages = models.IntegerField()
-    publish_date = models.DateField()
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE)  # TODO: make blanks
-    language = models.CharField(max_length=100)
+    pages = models.IntegerField(blank=True, null=True)
+    publish_date = models.DateField(blank=True, null=True)
+    publisher = models.ForeignKey(Publisher, blank=True, null=True, on_delete=models.CASCADE)
+    language = models.CharField(max_length=100, blank=True, null=True)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
     tags = models.ManyToManyField(Tag, blank=True)
     hidden = models.BooleanField(default=False)
-    # attachments
-    # likes/dislikes
+    # picture = models.ImageField('Book picture',
+    #                             upload_to=book_directory_path,
+    #                             null=True,
+    #                             blank=True)
+    # TODO: attachments
 
     def __str__(self):
         return '{0} ({1}) by {2} [ISBN: {3}]'.format(self.title, self.publish_date.year,
@@ -69,10 +79,25 @@ class Book(models.Model):
     def get_absolute_url(self):
         return reverse('books:details', args=[self.isbn])
 
+    def get_rating(self):
+        return self.get_upvotes_count() - self.get_downvotes_count()
+
+    def get_upvotes_count(self):
+        return Vote.objects.filter(book=self, action=UP).count()
+
+    def get_downvotes_count(self):
+        return Vote.objects.filter(book=self, action=DOWN).count()
+
     @property
     def authors_names(self):
         names = [x.full_name for x in self.authors.all()]
         return ', '.join(names)
+
+
+class Vote(models.Model):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    action = models.SmallIntegerField(default=UP)
 
 
 class BookTag(models.Model):

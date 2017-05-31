@@ -45,8 +45,6 @@
 	    <a href="{% url 'profiles:show' show_user.profile.slug %}">
 	    	<span class="glyphicon glyphicon-link" aria-hidden="true" title="Profile permalink"></span>
 	    	<span class="sr-only">Permalink</span></a> {{ show_user.profile.get_absolute_url }}
-	  {% else %}
-		<a href="https://github.com/arocks/edge/issues/40" target="_blank"><span>No permalink. See this issue.</span></a>
 	  {% endif %}
 	</div>
         <div class="panel-body">

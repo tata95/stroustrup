@@ -1,33 +1,80 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
+{% load thumbnail %}
 
-{% block title %}{{ block.super }}Books list{% endblock %}
+{% block title %}{{ block.super }}{{ book.title }} :: Profile{% endblock %}
 
 {% block navbar-left %}
   {% include "_navbar.html" with active_link="books" %}
 {% endblock %}
 
+
 {% block container %}
-<div class="container text-page">
-	<h1>{{ book.title }}</h1>
-	<p>ISBN: {{ book.isbn }}</p>
-	<p>Authors: {{ book.authors_names }}</p>
-	<p>Pages: {{ book.pages }}</p>
-	<p>Publish date: {{ book.publish_date }}</p>
-	<p>Publisher: {{ book.publisher }}</p>
-	<p>Language: {{ book.language }}</p>
-	<p>Genre: {{ book.genre }}</p>
-	{% if book.tags.all %}
-	<p>Tags: {% for tag in book.tags.all %}{{ tag }}{% endfor %}</p>
-	{% endif %}
-	<p>Description: {{ book.description }}</p>
-	{% if user.is_staff %}
-	<a href="{% url 'books:edit' book.isbn %}"><span class="badge">Edit</span></a>
-	<a href="{% url 'books:toggle' book.isbn %}"><span class="badge alert-warning">
-		{% if book.hidden %}Show{% else %}Hide{% endif %}
-	</span></a>
-	<a href="{% url 'books:delete' book.isbn %}"><span class="badge alert-danger">Delete</span></a>
-	{% endif %}
+
+<div class="container profile-head">
+  <div class="row">
+    <div class="col-sm-10">
+      <h1>{{ book.title }}</h1>
+
+      {% if user.is_staff %}
+      <a href="{% url 'books:edit' book.isbn %}" class="btn btn-info">Edit</a>
+      <a href="{% url 'books:toggle' book.isbn %}" class="btn btn-warning">
+      	{% if book.hidden %}Show{% else %}Hide{% endif %}
+      </a>
+      <a href="{% url 'books:delete' book.isbn %}" class="btn btn-danger">Delete</a>
+      {% endif %}
+    </div>
+    <div class="col-sm-2"><img title="book picture" class="img-responsive" src="{% thumbnail 'default_profile.png' 140x140 crop %}">
+    </div>
+  </div>
 </div>
+
+<div class="container profile-body">
+  <div class="row">
+    <div class="col-sm-4">
+      <ul class="list-group">
+        <li class="list-group-item text-muted">Information</li>
+
+        <li class="list-group-item text-right"><span class="pull-left"><strong>ISBN</strong></span> {{ book.isbn }}</li>
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Authors</strong></span> {{ book.authors_names }}</li>
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Pages</strong></span> {{ book.pages }}</li>
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Publish date</strong></span> {{ book.publish_date }}</li>
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Publisher</strong></span> {{ book.publisher }}</li>
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Language</strong></span> {{ book.language }}</li>
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Genre</strong></span> {{ book.genre }}</li>
+				
+				{% if book.tags.all %}
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Tags</strong></span> {% for tag in book.tags.all %}{{ tag }}{% endfor %}</li>
+				{% endif %}
+        
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Rating</strong></span>
+         {{ book.get_rating }} (+{{ book.get_upvotes_count }} / -{{ book.get_downvotes_count }})
+        <a href="{% url 'books:upvote' book.isbn%}">
+        	<span class="glyphicon glyphicon-thumbs-up" aria-hidden="true" title="Upvote"></span></a>
+        <a href="{% url 'books:upvote' book.isbn%}">
+        	<span class="glyphicon glyphicon-thumbs-down" aria-hidden="true" title="Downvote"></span></a>
+        </li>
+        
+      </ul>
+    </div>
+    <div class="col-sm-8">
+      <div class="panel panel-default">
+        <div class="panel-heading">Description</div>
+        <div class="panel-body">{{ book.description }}</div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Readers</div>
+        <div class="panel-body"></div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Files</div>
+        <div class="panel-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
