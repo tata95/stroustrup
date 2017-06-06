@@ -7,7 +7,6 @@ from pagedown.widgets import PagedownWidget
 
 
 class BookForm(forms.ModelForm):
-
     description = forms.CharField(widget=PagedownWidget())
 
     def __init__(self, *args, **kwargs):

@@ -168,13 +168,3 @@ def comment_unblock(request, pk):
     comment.save()
     messages.success(request, "Comment has been unblocked")
     return redirect('books:details', pk=comment.book.pk)
-
-
-# @user_passes_test(lambda u: u.is_staff)
-# def comment_block(request, id):
-#     comment = get_object_or_404(BookComment, id=id)
-#     reason = request.form.cleaned_data['reason']
-#     comment.reason = reason
-#     comment.save()
-#     messages.success(request, "Comment has been blocked")
-#     return redirect('books:details', pk=comment.book.pk)

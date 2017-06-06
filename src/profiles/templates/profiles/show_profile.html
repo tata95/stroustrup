@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
+{% load markdown_deux_tags %}
 {% load thumbnail %}
 
 {% block title %}{{ block.super }}Profile{% endblock %}
@@ -48,7 +49,7 @@
 	  {% endif %}
 	</div>
         <div class="panel-body">
-      	  <strong>Bio</strong>: {{ show_user.profile.bio }}
+      	  <strong>Bio</strong>: {{ show_user.profile.bio|markdown }}
       	</div>
       </div>
       
