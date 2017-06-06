@@ -84,14 +84,14 @@ class Book(models.Model):
     def get_absolute_url(self):
         return reverse('books:details', args=[self.isbn])
 
-    def get_rating(self):
-        return self.get_upvotes_count() - self.get_downvotes_count()
-
     def get_upvotes_count(self):
         return Vote.objects.filter(book=self, action=UP).count()
 
     def get_downvotes_count(self):
         return Vote.objects.filter(book=self, action=DOWN).count()
+
+    def get_rating(self):
+        return self.get_upvotes_count() - self.get_downvotes_count()
 
     @property
     def authors_names(self):
@@ -127,7 +127,7 @@ class BookTag(models.Model):
 
 
 class BookCopy(models.Model):
-    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, related_name='copies', on_delete=models.CASCADE)
     condition = models.CharField(max_length=20)
     arrived = models.DateTimeField(auto_now=True)
 

@@ -71,7 +71,11 @@
               <tr>
                 <td>{{ book.title }}</td>
                 <td>{{ book.authors_names }}</td>
-                <td>{{ book.genre }}; {{ book.tags.all }}</td>
+                <td>{{ book.genre }};
+                    {% for tag in book.tags.all %}
+                      {{ tag }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </td>
                 <td>{{ book.get_rating }}</td>
                 {# Actions for user #}
                 {% if user == show_user %}
@@ -91,7 +95,33 @@
       <div class="panel panel-default">
         <div class="panel-heading">Recommended books</div>
         <div class="panel-body">
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Authors</th>
+                  <th>Genre, Tags</th>
+                  <th>Rating</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for book in show_user.profile.get_recommended_books %}
+                <tr>
+                  <td>{{ book.title }}</td>
+                  <td>{{ book.authors_names }}</td>
+                  <td>{{ book.genre }};
+                    {% for tag in book.tags.all %}
+                      {{ tag }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </td>
 
+                  <td>{{ book.rating }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            </div>
         </div>
       </div>
       {% endif %}

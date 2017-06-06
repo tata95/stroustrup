@@ -71,7 +71,9 @@
     <div class="col-sm-8">
       <div class="panel panel-default">
         <div class="panel-heading">Description</div>
-        <div class="panel-body">{{ book.description|markdown }}</div>
+        <div class="panel-body">
+          {{ book.description|default:'No description'|markdown }}
+        </div>
       </div>
 
       <div class="panel panel-default">
@@ -87,6 +89,7 @@
         <div class="panel-heading">Files
         <a href="{% url 'books:add_file' book.isbn %}"><span class="pull-right btn btn-xs btn-default">Add file</span></a></div>
 	        <div class="panel-body">
+          {% if book.files.all %}
 	        <div class="table-responsive">
 					<table class="table">
 						<thead>
@@ -116,6 +119,9 @@
 						</tbody>
 					</table>
 	        </div>
+          {% else %}
+          <p>No files for this book.</p>
+          {% endif %}
 
 	        </div>
       </div>
