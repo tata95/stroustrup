@@ -2,6 +2,7 @@
 
 {% load staticfiles %}
 {% load crispy_forms_tags %}
+{% load markdown_deux_tags %}
 {% load thumbnail %}
 
 {% block title %}{{ block.super }}{{ book.title }} :: Profile{% endblock %}
@@ -62,7 +63,7 @@
     <div class="col-sm-8">
       <div class="panel panel-default">
         <div class="panel-heading">Description</div>
-        <div class="panel-body">{{ book.description }}</div>
+        <div class="panel-body">{{ book.description|markdown }}</div>
       </div>
 
       <div class="panel panel-default">

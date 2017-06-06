@@ -5,6 +5,7 @@
 {% load thumbnail %}
 
 {% block title %}{{ block.super }}New Book{% endblock %}
+{% block extrahead %}{{ form.media }}{% endblock extrahead %}
 
 {% block navbar-left %}
   {% include "_navbar.html" with active_link="books" %}

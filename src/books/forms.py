@@ -3,9 +3,12 @@ from crispy_forms.layout import Layout, Div, Submit, HTML, Button, Row, Field
 from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions
 from crispy_forms.helper import FormHelper
 from .models import Book, BookFile, BookComment
+from pagedown.widgets import PagedownWidget
 
 
 class BookForm(forms.ModelForm):
+
+    description = forms.CharField(widget=PagedownWidget())
 
     def __init__(self, *args, **kwargs):
         super(BookForm, self).__init__(*args, **kwargs)
@@ -21,14 +24,14 @@ class BookForm(forms.ModelForm):
             Field('authors'),
             Field('genre'),
             Field('tags'),
-            Field('picture'),
             Field('description'),
+            Field('picture'),
             Submit('save', 'Save', css_class="btn-success"),
         )
 
     class Meta:
         model = Book
-        fields = ['isbn', 'title', 'pages', 'publish_date', 'tags',
+        fields = ['isbn', 'title', 'pages', 'publish_date', 'tags', 'description',
                   'publisher', 'language', 'authors', 'genre', 'picture']
 
 

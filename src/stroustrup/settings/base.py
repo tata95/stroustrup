@@ -67,6 +67,8 @@ INSTALLED_APPS = (
     'authtools',
     'crispy_forms',
     'easy_thumbnails',
+    'markdown_deux',
+    'pagedown',
 
     'profiles',
     'accounts',
