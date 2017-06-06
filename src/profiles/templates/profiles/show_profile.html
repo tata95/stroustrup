@@ -44,12 +44,21 @@
 	  {% if show_user.profile.slug %}
 	    <a href="{% url 'profiles:show' show_user.profile.slug %}">
 	    	<span class="glyphicon glyphicon-link" aria-hidden="true" title="Profile permalink"></span>
-	    	<span class="sr-only">Permalink</span></a> {{ show_user.profile.get_absolute_url }}
+	    	<span class="sr-only">Permalink</span></a>
 	  {% endif %}
 	</div>
         <div class="panel-body">
-	  <strong>Bio</strong>: {{ show_user.profile.bio }}
-	</div>
+      	  <strong>Bio</strong>: {{ show_user.profile.bio }}
+      	</div>
+      </div>
+      
+      {% if show_user == user %}
+      <div class="panel panel-default">
+        <div class="panel-heading">Recommended books</div>
+        <div class="panel-body">
+
+        </div>
+      {% endif %}
       </div>
     </div>
   </div>

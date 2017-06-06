@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load staticfiles %}
+{% load crispy_forms_tags %}
 {% load thumbnail %}
 
 {% block title %}{{ block.super }}{{ book.title }} :: Profile{% endblock %}
@@ -104,6 +105,38 @@
 	        </div>
 
 	        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Comments</div>
+        <div class="panel-body">
+          <form enctype="multipart/form-data" method="post">
+          {% crispy form %}
+          </form>
+          <br>
+          {% for comment in book.comments.all %}
+          <div class="well">
+            <a href="{{ comment.user.profile.get_absolute_url }}">{{ comment.user.name }}</a> on {{ comment.timestamp | date }} {{ comment.timestamp | time }}:
+            {% if comment.blocked %}
+              <p>Comment has been blocked by moderator</p>
+              {% if comment.user == user %}
+              <p>Reason: {{ comment.blocked_reason }}</p>
+              {% endif %}
+            {% else %}
+            <p>{{ comment.body }}</p>
+            {% endif %}
+
+            {% if user.is_staff %}
+              {% if comment.blocked %}
+              <a href="{% url 'books:comment_unblock' comment.pk %}" class="btn btn-danger">Unblock</a>
+              {% else %}
+              <a href="{% url 'books:comment_block' comment.pk %}" class="btn btn-danger">Block</a>
+              {% endif %}
+            {% endif %}
+          </div>
+          
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>

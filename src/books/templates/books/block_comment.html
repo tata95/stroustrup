@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+{% load crispy_forms_tags %}
+{% load thumbnail %}
+
+{% block title %}{{ block.super }}Block Comment{% endblock %}
+
+{% block navbar-left %}
+  {% include "_navbar.html" with active_link="books" %}
+{% endblock %}
+
+{% block container %}
+
+<div class="container text-page">
+  <h1 class="text-primary">Block comment</h1>
+  <hr>
+  <div class="row">
+    <div class="col-md-9">
+      <p>Comment: {{ object }}</p>
+      <form enctype="multipart/form-data" method="post">
+    	{% crispy form %}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+

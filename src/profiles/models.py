@@ -3,6 +3,7 @@ from django.utils.encoding import python_2_unicode_compatible
 import uuid
 from django.db import models
 from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from books.models import Book, BookCopy
 
@@ -20,6 +21,9 @@ class BaseProfile(models.Model):
                                 blank=True)
     bio = models.CharField("Short Bio", max_length=200, blank=True, null=True)
     email_verified = models.BooleanField("Email verified", default=False)
+
+    def get_absolute_url(self):
+        return reverse('profiles:show', args=[self.slug])
 
     class Meta:
         abstract = True

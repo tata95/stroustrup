@@ -142,7 +142,7 @@ class BookComment(models.Model):
     blocked_reason = models.CharField(max_length=200, null=True)
 
     def __str__(self):
-        return '{}: {}'.format(self.user.username, self.body)
+        return '{}: {}'.format(self.user.email, self.body)
 
 
 class ReadersListRecord(models.Model):
