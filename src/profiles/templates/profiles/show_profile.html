@@ -52,6 +52,40 @@
       	  <strong>Bio</strong>: {{ show_user.profile.bio|markdown }}
       	</div>
       </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Read books</div>
+        <div class="panel-body">
+          <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Authors</th>
+                <th>Genre, Tags</th>
+                <th>Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for book in show_user.profile.read_books.all %}
+              <tr>
+                <td>{{ book.title }}</td>
+                <td>{{ book.authors_names }}</td>
+                <td>{{ book.genre }}; {{ book.tags.all }}</td>
+                <td>{{ book.get_rating }}</td>
+                {# Actions for user #}
+                {% if user == show_user %}
+                <td>
+                  <a href="{% url 'profiles:readlist_toggle' book.isbn %}" class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span></a>
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
       
       {% if show_user == user %}
       <div class="panel panel-default">
@@ -59,8 +93,8 @@
         <div class="panel-body">
 
         </div>
-      {% endif %}
       </div>
+      {% endif %}
     </div>
   </div>
 </div>

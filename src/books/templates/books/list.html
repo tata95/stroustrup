@@ -24,7 +24,7 @@
 				<p>Publish_date: {{ book.publish_date }}</p>
 				<p>Genre: {{ book.genre }}</p>
 				{% if book.tags.all %}
-				<p>Tags: {% for tag in book.tags.all %}{{ tag }}{% endfor %}</p>
+				<p>Tags: {% for tag in book.tags.all %}{{ tag }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 				{% endif %}
 
 				{% if user.is_staff %}
@@ -43,10 +43,10 @@
 		</div>
 	</div>
 
-	{% if books.has_other_pages %}
+	{% if is_paginated %}
 		<ul class="pagination">
-			{% if books.has_previous %}
-				<li><a href="?page={{ books.previous_page_number }}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></a></li>
+			{% if page_obj.has_previous %}
+				<li><a href="?page={{ page_obj.previous_page_number }}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></a></li>
 				{% if not 1 in page_range %}
 					<li><a href="?page=1">1</a></li>
 				{% endif %}
@@ -54,17 +54,17 @@
 				<li class="disabled"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></li>
 			{% endif %}
 			{% for i in page_range %}
-				{% if books.number == i %}
+				{% if page_obj.number == i %}
 					<li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
 				{% else %}
 					<li><a href="?page={{ i }}">{{ i }}</a></li>
 				{% endif %}
 			{% endfor %}
-			{% if books.has_next %}
-				{% if not books.paginator.num_pages in page_range %}
-					<li><a href="?page={{ books.paginator.num_pages }}">{{ books.paginator.num_pages }}</a></li>
+			{% if page_obj.has_next %}
+				{% if not page_obj.paginator.num_pages in page_range %}
+					<li><a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a></li>
 				{% endif %}
-				<li><a href="?page={{ books.next_page_number }}"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a></li>
+				<li><a href="?page={{ page_obj.next_page_number }}"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></a></li>
 				
 			{% else %}
 				<li class="disabled"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></li>

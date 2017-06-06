@@ -4,10 +4,15 @@ from django.contrib import messages
 from django.views import generic
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import user_passes_test, login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.conf import settings
 from . import forms
-from .models import Book, Vote, BookFile, UP, DOWN, BookComment
+from .models import Book, Vote, BookFile, Tag, UP, DOWN, BookComment
+import isbnlib
+
+isbnlib.config.add_apikey('isbndb', settings.ISBNDB_API_KEY)
 
 
 class StaffOnlyView(object):
@@ -17,29 +22,28 @@ class StaffOnlyView(object):
         return super(StaffOnlyView, self).dispatch(request, *args, **kwargs)
 
 
-def books_list(request):
+class BooksListView(generic.ListView):
+    model = Book
     template_name = 'books/list.html'
-    books_list = Book.objects.filter(hidden=False)
-    page = request.GET.get('page', 1)
-    count = request.GET.get('count', 10)
-    paginator = Paginator(books_list, count)
-    page_neighbors_count = 3
+    context_object_name = 'books'
+    paginate_by = 10
 
-    try:
-        books = paginator.page(page)
-    except PageNotAnInteger:
-        books = paginator.page(1)
-    except EmptyPage:
-        books = paginator.page(paginator.num_pages)
+    def dispatch(self, request, *args, **kwargs):
+        count = request.GET.get('count')
+        if count:
+            self.paginate_by = count
+        return super(BooksListView, self).dispatch(request, *args, **kwargs)
 
-    index = books.number - 1
-    max_index = len(paginator.page_range)
-    start_index = index - page_neighbors_count + 1 if index >= page_neighbors_count + 1 else 0
-    end_index = index + page_neighbors_count if index <= max_index - page_neighbors_count else max_index
-    page_range = paginator.page_range[start_index:end_index]
-
-    return render(request, template_name,
-                  context={'books': books, 'page_range': page_range})
+    def get_context_data(self, **kwargs):
+        context = super(BooksListView, self).get_context_data(**kwargs)
+        page_neighbors_count = 3
+        index = context['page_obj'].number - 1
+        max_index = len(context['paginator'].page_range)
+        start_index = index - page_neighbors_count + 1 if index >= page_neighbors_count + 1 else 0
+        end_index = index + page_neighbors_count if index <= max_index - page_neighbors_count else max_index
+        page_range = context['paginator'].page_range[start_index:end_index]
+        context.update({'page_range': page_range})
+        return context
 
 
 class ViewBook(generic.DetailView, generic.edit.FormView):
@@ -168,3 +172,44 @@ def comment_unblock(request, pk):
     comment.save()
     messages.success(request, "Comment has been unblocked")
     return redirect('books:details', pk=comment.book.pk)
+
+
+def isbn_info(request):
+    isbn = request.GET.get('isbn', '')
+    data = {}
+    if isbnlib.notisbn(isbn):
+        return JsonResponse(data, status=400)
+    description = isbnlib.desc(isbn)
+    if description:
+        data.update({'description': description})
+    try:
+        metadata = isbnlib.meta(isbn, 'isbndb')
+    except Exception:
+        metadata = {}
+    data.update({'meta': metadata})
+    return JsonResponse(data)
+
+
+class AddTag(LoginRequiredMixin, generic.FormView):
+    template_name = 'tags/add.html'
+    model = Tag
+    form_class = forms.TagForm
+
+    def get_context_data(self, **kwargs):
+        context = {'form': self.get_form(self.form_class),
+                   'book': self.book}
+        return super(AddTag, self).get_context_data(**context)
+
+    def dispatch(self, request, *args, **kwargs):
+        print(kwargs.get('isbn'))
+        self.book = get_object_or_404(Book, isbn=kwargs.get('isbn'))
+        return super(AddTag, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        name = form.cleaned_data['name']
+        tag = Tag.objects.get_or_create(name=name)[0]
+        self.book.tags.add(tag)
+        return super(AddTag, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('books:details', kwargs={'pk': self.book.pk})

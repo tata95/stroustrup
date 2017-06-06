@@ -2,6 +2,7 @@ import os
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
+from .validators import validate_isbn
 
 User = get_user_model()
 UP = 1
@@ -59,8 +60,9 @@ class Tag(models.Model):
 
 
 class Book(models.Model):
-    isbn = models.CharField(max_length=20, unique=True, primary_key=True)
-    authors = models.ManyToManyField(Author)
+    isbn = models.CharField(max_length=20, unique=True, primary_key=True,
+                            validators=[validate_isbn])
+    authors = models.ManyToManyField(Author, related_name='books')
     description = models.TextField()
     title = models.CharField(max_length=300)
     pages = models.IntegerField(blank=True, null=True)
@@ -68,7 +70,7 @@ class Book(models.Model):
     publisher = models.ForeignKey(Publisher, blank=True, null=True, on_delete=models.CASCADE)
     language = models.CharField(max_length=100, blank=True, null=True)
     genre = models.ForeignKey(Genre, on_delete=models.SET_NULL, null=True)
-    tags = models.ManyToManyField(Tag, blank=True)
+    tags = models.ManyToManyField(Tag, blank=True, related_name='books')
     hidden = models.BooleanField(default=False)
     picture = models.ImageField('Book picture',
                                 upload_to=book_picture_path,

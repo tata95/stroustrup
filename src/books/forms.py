@@ -2,8 +2,8 @@ from django import forms
 from crispy_forms.layout import Layout, Div, Submit, HTML, Button, Row, Field
 from crispy_forms.bootstrap import AppendedText, PrependedText, FormActions
 from crispy_forms.helper import FormHelper
-from .models import Book, BookFile, BookComment
-from pagedown.widgets import PagedownWidget
+from .models import Book, BookFile, BookComment, Tag
+from pagedown.widgets import PagedownWidget, AdminPagedownWidget
 
 
 class BookForm(forms.ModelForm):
@@ -32,6 +32,15 @@ class BookForm(forms.ModelForm):
         model = Book
         fields = ['isbn', 'title', 'pages', 'publish_date', 'tags', 'description',
                   'publisher', 'language', 'authors', 'genre', 'picture']
+
+
+class BookAdminForm(BookForm):
+    description = forms.CharField(widget=AdminPagedownWidget())
+
+    class Meta:
+        model = Book
+        fields = ['isbn', 'title', 'pages', 'publish_date', 'tags', 'description',
+                  'publisher', 'language', 'authors', 'genre', 'picture', 'hidden']
 
 
 class BookFileForm(forms.ModelForm):
@@ -87,3 +96,18 @@ class CommentBlockForm(forms.ModelForm):
     class Meta:
         model = BookComment
         fields = ['blocked_reason']
+
+
+class TagForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(TagForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Field('name'),
+            Submit('save', 'Save', css_class="btn-success"),
+        )
+
+    class Meta:
+        model = Tag
+        fields = ['name']

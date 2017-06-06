@@ -3,6 +3,8 @@ from django.views import generic
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from books.models import Book
+from django.http import HttpResponse
 from . import forms
 from . import models
 
@@ -58,3 +60,14 @@ class EditProfile(LoginRequiredMixin, generic.TemplateView):
         profile.save()
         messages.success(request, "Profile details saved!")
         return redirect("profiles:show_self")
+
+
+def readlist_add_remove(request, isbn):
+    user = request.user
+    book = get_object_or_404(Book, isbn=isbn)
+    if book in user.profile.read_books.all():
+        user.profile.read_books.remove(book)
+        return HttpResponse('Removed {} from readlist'.format(book))
+    else:
+        user.profile.read_books.add(book)
+        return HttpResponse('Added {} to readlist'.format(book))

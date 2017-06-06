@@ -5,7 +5,7 @@ from django.db import models
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from books.models import Book, BookCopy
+from books.models import Book
 
 
 class BaseProfile(models.Model):
@@ -13,7 +13,7 @@ class BaseProfile(models.Model):
                                 primary_key=True)
     slug = models.UUIDField(default=uuid.uuid4, blank=True, editable=False)
 
-    read_books = models.ManyToManyField(Book, blank=True)
+    read_books = models.ManyToManyField(Book, blank=True, related_name='readers')
 
     picture = models.ImageField('Profile picture',
                                 upload_to='profile_pics/%Y-%m-%d/',

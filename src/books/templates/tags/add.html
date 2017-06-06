@@ -4,7 +4,7 @@
 {% load crispy_forms_tags %}
 {% load thumbnail %}
 
-{% block title %}{{ block.super }}Book{% endblock %}
+{% block title %}{{ block.super }}Add Tag{% endblock %}
 
 {% block navbar-left %}
   {% include "_navbar.html" with active_link="books" %}
@@ -13,11 +13,10 @@
 {% block container %}
 
 <div class="container text-page">
-  <h1 class="text-primary">Book Profile</h1>
+  <h1 class="text-primary">Add Tag to {{ book }}</h1>
   <hr>
   <div class="row">
     <div class="col-md-9">
-      <h3>Book profile</h3>
       <form enctype="multipart/form-data" method="post">
     	{% crispy form %}
       </form>
