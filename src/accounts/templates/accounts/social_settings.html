@@ -27,7 +27,7 @@
 
     <h3>VK</h3>
       {% if vk_login %}
-        <p>Connected as {{ vk_login.extra_data }}</p>
+        <p>Connected as <a href="https://vk.com/id{{ vk_login.extra_data.id }}" target="_blank">{{ vk_login.extra_data.id }}</a></p>
         {% if can_disconnect %}
           <form method="post" action="{% url 'social:disconnect' 'vk-oauth2' %}">
             {% csrf_token %}
