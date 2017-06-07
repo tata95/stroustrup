@@ -25,7 +25,7 @@ class BooksListView(generic.ListView):
     model = Book
     template_name = 'books/list.html'
     context_object_name = 'books'
-    paginate_by = 2
+    paginate_by = 10
 
     def dispatch(self, request, *args, **kwargs):
         count = request.GET.get('count')
