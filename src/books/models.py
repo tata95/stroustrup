@@ -62,7 +62,8 @@ class Tag(models.Model):
 
 class Book(models.Model):
     isbn = models.CharField(max_length=20, unique=True, primary_key=True,
-                            validators=[validate_isbn])
+                            # validators=[validate_isbn])
+                            validators=[])
     authors = models.ManyToManyField(Author, related_name='books')
     description = models.TextField()
     title = models.CharField(max_length=300)
@@ -80,8 +81,7 @@ class Book(models.Model):
     copies_num = models.IntegerField(default=0)
 
     def __str__(self):
-        return '{0} ({1}) by {2} [ISBN: {3}]'.format(self.title, self.publish_date.year,
-                                                     self.authors_names, self.isbn)
+        return '{0} by {1} [ISBN: {2}]'.format(self.title, self.authors_names, self.isbn)
 
     def get_absolute_url(self):
         return reverse('books:details', args=[self.isbn])

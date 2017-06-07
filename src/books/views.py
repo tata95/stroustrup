@@ -27,12 +27,15 @@ class BooksListView(generic.ListView):
     model = Book
     template_name = 'books/list.html'
     context_object_name = 'books'
-    paginate_by = 1
+    paginate_by = 10
 
     def dispatch(self, request, *args, **kwargs):
-        count = request.GET.get('count')
-        if count:
+        count = request.GET.get('count') or request.COOKIES.get('page_count') or self.paginate_by
+        if count != self.paginate_by:
             self.paginate_by = count
+            self.new_count = count
+        else:
+            self.new_count = None
         return super(BooksListView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -45,6 +48,12 @@ class BooksListView(generic.ListView):
         page_range = context['paginator'].page_range[start_index:end_index]
         context.update({'page_range': page_range})
         return context
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super(BooksListView, self).render_to_response(context, **response_kwargs)
+        if self.new_count:
+            response.set_cookie('page_count', self.new_count)
+        return response
 
 
 class BooksSearchView(BooksListView, generic.edit.FormView):

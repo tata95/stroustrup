@@ -52,7 +52,7 @@
 	</div>
 
 	{% if is_paginated %}
-	<div class="row">
+		<div class="row">
 		<ul class="pagination">
 			{% if page_obj.has_previous %}
 				<li><a href="?page={{ page_obj.previous_page_number }}"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span></a></li>
@@ -79,7 +79,14 @@
 				<li class="disabled"><span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></li>
 			{% endif %}
 		</ul>
-	</div>
+		</div>
+		<div class="row">
+			<div class="btn-group">
+				<a href="{% url 'books:list' %}?count=5" class="btn btn-default {% if page_obj|length == 5 %}active{% endif %}">5</a>
+				<a href="{% url 'books:list' %}?count=10" class="btn btn-default {% if page_obj|length == 10 %}active{% endif %}">10</a>
+				<a href="{% url 'books:list' %}?count=20" class="btn btn-default {% if page_obj|length == 20 %}active{% endif %}">20</a>
+			</div>
+		</div>
 	{% endif %}
 </div>
 

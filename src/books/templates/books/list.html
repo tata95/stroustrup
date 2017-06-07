@@ -74,9 +74,9 @@
 		</div>
 		<div class="row">
 			<div class="btn-group">
-				<button type="button" class="btn btn-default {% if page_obj|length == 5 %}active{% endif %}">5</button>
-				<button type="button" class="btn btn-default {% if page_obj|length == 10 %}active{% endif %}">10</button>
-				<button type="button" class="btn btn-default {% if page_obj|length == 20 %}active{% endif %}">20</button>
+				<a href="{% url 'books:list' %}?count=5" class="btn btn-default {% if page_obj|length == 5 %}active{% endif %}">5</a>
+				<a href="{% url 'books:list' %}?count=10" class="btn btn-default {% if page_obj|length == 10 %}active{% endif %}">10</a>
+				<a href="{% url 'books:list' %}?count=20" class="btn btn-default {% if page_obj|length == 20 %}active{% endif %}">20</a>
 			</div>
 		</div>
 	{% endif %}

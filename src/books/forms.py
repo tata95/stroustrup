@@ -15,6 +15,7 @@ class BookForm(forms.ModelForm):
         self.helper.form_tag = False
         self.helper.layout = Layout(
             Field('isbn'),
+            Button('fetch', 'Fetch info'),
             Field('title'),
             Field('pages'),
             Field('publish_date'),
