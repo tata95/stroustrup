@@ -1,0 +1,2 @@
+<p>{{ request.user }} wants to purchase <a href="http://{{ request.get_host }}{{ book.get_absolute_url }}">{{ book }}</a></p>
+<a href="mailto:{{ request.user.email }}">Contact</a>

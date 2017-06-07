@@ -118,6 +118,8 @@ STATIC_URL = '/static/'
 
 ALLOWED_HOSTS = []
 
+ADMIN_EMAIL = 't.balaschova@mail.ru'
+
 # Crispy Form Theme - Bootstrap 3
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
@@ -127,17 +129,17 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger'
 }
 
+THUMBNAIL_EXTENSION = 'png'
+
 # Authentication Settings
 AUTH_USER_MODEL = 'authtools.User'
 LOGIN_REDIRECT_URL = reverse_lazy("profiles:show_self")
 LOGIN_URL = reverse_lazy("accounts:login")
 LOGOUT_URL = reverse_lazy("accounts:logout")
 
-# SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy("accounts:settings")
-# SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("accounts:settings")
-# SOCIAL_AUTH_RAISE_EXCEPTIONS = False
-
-THUMBNAIL_EXTENSION = 'png'
+SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy("accounts:settings")
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("accounts:settings")
+SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 SOCIAL_AUTH_GITHUB_KEY = '2ceccce5f89d59ca94b3'
 SOCIAL_AUTH_GITHUB_SECRET = 'de9769887eae7d492f2ef8341354bd687b36b46f'

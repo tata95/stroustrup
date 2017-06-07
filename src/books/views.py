@@ -7,6 +7,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
 from django.conf import settings
+from django.template.loader import get_template
+from django.core.mail import EmailMessage
 from . import forms
 from .models import Book, Vote, BookFile, Tag, Genre, UP, DOWN, BookComment
 import isbnlib
@@ -237,3 +239,18 @@ class AddTag(LoginRequiredMixin, generic.FormView):
 
     def get_success_url(self):
         return reverse_lazy('books:details', kwargs={'pk': self.book.pk})
+
+
+@login_required
+def purchase_request(request, isbn):
+    template_name = 'books/emails/purchase.html'
+    subject = 'Purchase request'
+    from_email = request.user.email
+    to_email = [settings.ADMIN_EMAIL]
+    book = get_object_or_404(Book, isbn=isbn)
+    context = {'request': request, 'book': book}
+    message = get_template(template_name).render(context)
+    msg = EmailMessage(subject, message, to=to_email, from_email=from_email)
+    msg.content_subtype = 'html'
+    msg.send()
+    return redirect('books:details', pk=book.pk)
