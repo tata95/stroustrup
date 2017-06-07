@@ -1,8 +1,32 @@
-version: "2"
+version: '2'
 services:
-  db_postgres:
-    image: postgres:9.6.1
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src:/src
+      - ./config/nginx:/etc/nginx/conf.d
+    depends_on:
+      - web
+  web:
+    build: .
+    command: bash -c "sleep 10 && python manage.py makemigrations && python manage.py migrate && cd ../src && gunicorn main.wsgi -b 0.0.0.0:8000"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://stroustrup:stroustrup@db:5432/stroustrup
+      - DEBUG=False
+      - SECRET_KEY=E51Qbm03rNCihF2r0EWs4TYNxNy9FYoj4do4bTWaIeyGnkgmqmCX6NxHfsqu
+
+    volumes:
+      - ./src:/src
+    expose:
+      - "8000"
     restart: always
+
+  db:
+    image: postgres:latest
     environment:
       - POSTGRES_DB=stroustrup
       - POSTGRES_USER=stroustrup
@@ -11,11 +35,3 @@ services:
       - ./postgres_db_data:/var/lib/postgresql/data
     ports:
       - "127.0.0.1:5432:5432"
-
-  # backend:
-  #   build: .
-  #   ports:
-  #     - "0.0.0.0:8000:8000"
-  #   restart: always
-  #   links:
-  #     - db_postgres
