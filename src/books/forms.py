@@ -34,6 +34,23 @@ class BookForm(forms.ModelForm):
                   'publisher', 'language', 'authors', 'genre', 'picture']
 
 
+class BookSearchForm(forms.Form):
+    title = forms.CharField(required=False)
+    tags = forms.CharField(required=False)
+    genre = forms.CharField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(BookSearchForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'get'
+        self.helper.layout = Layout(
+            Field('title'),
+            Field('tags'),
+            Field('genre'),
+            Submit('', 'Search', css_class="btn-success"),
+        )
+
+
 class BookAdminForm(BookForm):
     description = forms.CharField(widget=AdminPagedownWidget())
 

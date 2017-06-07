@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     url(r'^$', views.BooksListView.as_view(), name='list'),
     url(r'^list$', views.BooksListView.as_view(), name='list'),
+    url(r'^search$', views.BooksSearchView.as_view(), name='search'),
     url(r'^toggle/(?P<isbn>[0-9,a-z,A-Z]+)/$', views.book_toggle_view, name='toggle'),
     url(r'^edit/(?P<pk>[0-9,a-z,A-Z]+)/$', views.EditBook.as_view(), name='edit'),
     url(r'^delete/(?P<pk>[0-9,a-z,A-Z]+)/$', views.DeleteBook.as_view(), name='delete'),

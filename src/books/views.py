@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.http import HttpResponse, JsonResponse
 from django.conf import settings
 from . import forms
-from .models import Book, Vote, BookFile, Tag, UP, DOWN, BookComment
+from .models import Book, Vote, BookFile, Tag, Genre, UP, DOWN, BookComment
 import isbnlib
 
 isbnlib.config.add_apikey('isbndb', settings.ISBNDB_API_KEY)
@@ -25,7 +25,7 @@ class BooksListView(generic.ListView):
     model = Book
     template_name = 'books/list.html'
     context_object_name = 'books'
-    paginate_by = 10
+    paginate_by = 2
 
     def dispatch(self, request, *args, **kwargs):
         count = request.GET.get('count')
@@ -43,6 +43,31 @@ class BooksListView(generic.ListView):
         page_range = context['paginator'].page_range[start_index:end_index]
         context.update({'page_range': page_range})
         return context
+
+
+class BooksSearchView(BooksListView, generic.edit.FormView):
+    template_name = 'books/search.html'
+    form_class = forms.BookSearchForm
+
+    def get_context_data(self, **kwargs):
+        context = {'form': self.get_form(self.form_class)}
+        return super(BooksSearchView, self).get_context_data(**context)
+
+    def get_queryset(self):
+        title = self.request.GET.get('title', '')
+        tags = [x for x in self.request.GET.get('tags', '').split(',') if x]
+        genre = self.request.GET.get('genre', '')
+        object_list = self.model.objects.filter(hidden=False)
+        if title:
+            object_list = object_list.filter(title__icontains=title) | \
+                object_list.filter(isbn__icontains=title)
+        if genre:
+            object_list = object_list.filter(
+                genre__in=Genre.objects.filter(name__icontains=genre))
+        if tags:
+            object_list = object_list.filter(
+                tags__in=Tag.objects.filter(name__in=tags))
+        return object_list
 
 
 class ViewBook(generic.DetailView, generic.edit.FormView):
