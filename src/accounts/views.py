@@ -1,13 +1,17 @@
 from __future__ import unicode_literals
 from django.core.urlresolvers import reverse_lazy
 from django.views import generic
-from django.contrib.auth import get_user_model
-from django.contrib import auth
-from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AdminPasswordChangeForm, PasswordChangeForm
+from django.contrib.auth import get_user_model, update_session_auth_hash
+from django.contrib import auth, messages
 from authtools import views as authviews
 from braces import views as bracesviews
 from django.conf import settings
+from django.shortcuts import render, redirect
 from . import forms
+
+from social_django.models import UserSocialAuth
 
 User = get_user_model()
 
@@ -21,7 +25,7 @@ class LoginView(bracesviews.AnonymousRequiredMixin,
         redirect = super(LoginView, self).form_valid(form)
         remember_me = form.cleaned_data.get('remember_me')
         if remember_me is True:
-            ONE_MONTH = 30*24*60*60
+            ONE_MONTH = 30 * 24 * 60 * 60
             expiry = getattr(settings, "KEEP_LOGGED_DURATION", ONE_MONTH)
             self.request.session.set_expiry(expiry)
         return redirect
@@ -77,3 +81,44 @@ class PasswordResetDoneView(authviews.PasswordResetDoneView):
 class PasswordResetConfirmView(authviews.PasswordResetConfirmAndLoginView):
     template_name = 'accounts/password-reset-confirm.html'
     form_class = forms.SetPasswordForm
+
+
+@login_required
+def social_settings(request):
+    user = request.user
+
+    try:
+        github_login = user.social_auth.get(provider='github')
+    except UserSocialAuth.DoesNotExist:
+        github_login = None
+
+    try:
+        vk_login = user.social_auth.get(provider='vk-oauth2')
+    except UserSocialAuth.DoesNotExist:
+        vk_login = None
+
+    can_disconnect = (user.social_auth.count() > 1 or user.has_usable_password())
+
+    return render(request, 'accounts/social_settings.html', {
+        'github_login': github_login,
+        'vk_login': vk_login,
+        'can_disconnect': can_disconnect
+    })
+
+
+@login_required
+def password(request):
+    PasswordForm = forms.SetPasswordForm
+
+    if request.method == 'POST':
+        form = PasswordForm(request.user, request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('accounts:password')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordForm(request.user)
+    return render(request, 'accounts/social_password.html', {'form': form})

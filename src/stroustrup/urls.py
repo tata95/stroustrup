@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^users/', include(profiles.urls, namespace='profiles')),
     url(r'^books/', include(books.urls, namespace='books')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^oauth/', include('social_django.urls', namespace='social')),
     url(r'^', include(accounts.urls, namespace='accounts')),
 ]
 

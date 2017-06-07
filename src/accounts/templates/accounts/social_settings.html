@@ -1,0 +1,47 @@
+{% extends "accounts/auth_base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}{{ block.super }}Login Settings{% endblock %}
+
+{% block form_heading %}Your connected accounts{% endblock %}
+
+{% block form %}
+
+  <div class="form-message">
+    <h3>GitHub</h3>
+      {% if github_login %}
+        <p>Connected as <a href="https://github.com/{{ github_login.extra_data.login }}/" target="_blank">{{ github_login.extra_data.login }}</a></p>
+        {% if can_disconnect %}
+          <form method="post" action="{% url 'social:disconnect' 'github' %}">
+            {% csrf_token %}
+            <button type="submit">Disconnect from GitHub</button>
+          </form>
+        {% else %}
+          <button type="button" disabled>Disconnect from GitHub</button>
+          <p style="color: red">You must <a href="{% url 'accounts:password' %}">define a password</a> for your account before disconnecting from Github.</p>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'social:begin' 'github' %}">Connect to GitHub</a>
+      {% endif %}
+
+    <h3>VK</h3>
+      {% if vk_login %}
+        <p>Connected as {{ vk_login.extra_data }}</p>
+        {% if can_disconnect %}
+          <form method="post" action="{% url 'social:disconnect' 'vk-oauth2' %}">
+            {% csrf_token %}
+            <button type="submit">Disconnect from VK</button>
+          </form>
+        {% else %}
+          <button type="button" disabled>Disconnect from VK</button>
+          <p style="color: red">You must <a href="{% url 'accounts:password' %}">define a password</a> for your account before disconnecting from VK.</p>
+        {% endif %}
+      {% else %}
+        <a href="{% url 'social:begin' 'vk-oauth2' %}">Connect to VK</a>
+      {% endif %}
+
+	
+  </div>
+{% endblock form %}
+

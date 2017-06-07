@@ -36,6 +36,9 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
+
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -71,6 +74,7 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'markdown_deux',
     'pagedown',
+    'social_django',
 
     'profiles',
     'accounts',
@@ -84,7 +88,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 )
 
 ROOT_URLCONF = 'stroustrup.urls'
@@ -127,5 +131,30 @@ MESSAGE_TAGS = {
 AUTH_USER_MODEL = 'authtools.User'
 LOGIN_REDIRECT_URL = reverse_lazy("profiles:show_self")
 LOGIN_URL = reverse_lazy("accounts:login")
+LOGOUT_URL = reverse_lazy("accounts:logout")
+
+# SOCIAL_AUTH_LOGIN_ERROR_URL = reverse_lazy("accounts:settings")
+# SOCIAL_AUTH_LOGIN_REDIRECT_URL = reverse_lazy("accounts:settings")
+# SOCIAL_AUTH_RAISE_EXCEPTIONS = False
 
 THUMBNAIL_EXTENSION = 'png'
+
+SOCIAL_AUTH_GITHUB_KEY = '2ceccce5f89d59ca94b3'
+SOCIAL_AUTH_GITHUB_SECRET = 'de9769887eae7d492f2ef8341354bd687b36b46f'
+
+SOCIAL_AUTH_VK_OAUTH2_KEY = '6064241'
+SOCIAL_AUTH_VK_OAUTH2_SECRET = 'LqVwgM25jRCNSRLSkGPm'
+
+USER_FIELDS = ['email']
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.vk.VKOAuth2',
+    # 'social_core.backends.twitter.TwitterOAuth',
+    # 'social_core.backends.facebook.FacebookOAuth2',
+    # 'social_core.backends.google.GoogleOpenId',
+    # 'social_core.backends.google.GoogleOAuth2',
+    # 'social_core.backends.google.GoogleOAuth',
+
+    'django.contrib.auth.backends.ModelBackend',
+)

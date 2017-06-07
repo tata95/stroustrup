@@ -13,6 +13,8 @@
     <p>
       Don't have an account? <a href="{% url 'accounts:signup' %}">Sign up</a>.
     </p>
+    <a href="{% url 'social:begin' 'github' %}">Login with GitHub</a><br>
+    <a href="{% url 'social:begin' 'vk-oauth2' %}">Login with VK</a><br>
   </div>
 {% endblock form %}
 
