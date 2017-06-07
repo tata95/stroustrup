@@ -3,6 +3,7 @@ from django.views import generic
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from books.models import Book
 from django.http import HttpResponse
 from . import forms
@@ -62,6 +63,7 @@ class EditProfile(LoginRequiredMixin, generic.TemplateView):
         return redirect("profiles:show_self")
 
 
+@login_required
 def readlist_add_remove(request, isbn):
     user = request.user
     book = get_object_or_404(Book, isbn=isbn)

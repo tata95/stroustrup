@@ -10,7 +10,7 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 from . import forms
-from .models import Book, Vote, BookFile, Tag, Genre, UP, DOWN, BookComment
+from .models import Book, Vote, BookFile, Tag, Genre, UP, DOWN, BookComment, ReadersListRecord
 import isbnlib
 
 isbnlib.config.add_apikey('isbndb', settings.ISBNDB_API_KEY)
@@ -27,7 +27,7 @@ class BooksListView(generic.ListView):
     model = Book
     template_name = 'books/list.html'
     context_object_name = 'books'
-    paginate_by = 10
+    paginate_by = 1
 
     def dispatch(self, request, *args, **kwargs):
         count = request.GET.get('count')
@@ -253,4 +253,22 @@ def purchase_request(request, isbn):
     msg = EmailMessage(subject, message, to=to_email, from_email=from_email)
     msg.content_subtype = 'html'
     msg.send()
+    return redirect('books:details', pk=book.pk)
+
+
+@login_required
+def take_return_book(request, isbn):
+    user = request.user
+    book = get_object_or_404(Book, isbn=isbn)
+    records = ReadersListRecord.objects.filter(book=book, user=user, date_returned=None)
+    if records:
+        if book.return_book(user):
+            messages.success(request, "Book '{}' has been returned".format(str(book)))
+        else:
+            messages.error(request, "Book '{}' has not been returned".format(str(book)))
+    else:
+        if book.take_book(user):
+            messages.success(request, "Book '{}' has been taken".format(str(book)))
+        else:
+            messages.error(request, "Book '{}' has not been taken".format(str(book)))
     return redirect('books:details', pk=book.pk)

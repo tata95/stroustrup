@@ -93,6 +93,44 @@
       
       {% if show_user == user %}
       <div class="panel panel-default">
+        <div class="panel-heading">Taken books</div>
+        <div class="panel-body">
+          <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Authors</th>
+                <th>Genre, Tags</th>
+                <th>Rating</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in show_user.profile.get_taken_books %}
+              <tr>
+                <td>{{ record.book.title }}</td>
+                <td>{{ record.book.authors_names }}</td>
+                <td>{{ record.book.genre }};
+                    {% for tag in record.book.tags.all %}
+                      {{ tag }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </td>
+                <td>{{ record.book.get_rating }}</td>
+                {# Actions for user #}
+                {% if user == show_user %}
+                <td>
+                  <a href="{% url 'books:take_return' record.book.isbn %}" class="btn btn-xs btn-info">Return</a>
+                </td>
+                {% endif %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel panel-default">
         <div class="panel-heading">Recommended books</div>
         <div class="panel-body">
           <div class="table-responsive">

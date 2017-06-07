@@ -23,6 +23,12 @@
       {% else %}
       <a href="{% url 'profiles:readlist_toggle' book.isbn %}" class="btn btn-info">Add to readlist</a>
       {% endif %}
+      {# Dirtiest hack #}
+      {% for record in user.profile.get_taken_books.all %}{% if record.book == book %}
+      <a href="{% url 'books:take_return' book.isbn %}" class="btn btn-info">Return</a>
+      {% else %}
+      <a href="{% url 'books:take_return' book.isbn %}" class="btn btn-info {% if book.copies_num <= 0 %}disabled{% endif %}">Take</a>
+      {% endif %}{% empty %}<a href="{% url 'books:take_return' book.isbn %}" class="btn btn-info {% if book.copies_num <= 0 %}disabled{% endif %}">Take</a>{% endfor %}
       <a href="{% url 'books:purchase' book.isbn %}" class="btn btn-success">
         Request purchase
       </a>
@@ -52,6 +58,7 @@
         <li class="list-group-item text-right"><span class="pull-left"><strong>Publisher</strong></span> {{ book.publisher }}</li>
         <li class="list-group-item text-right"><span class="pull-left"><strong>Language</strong></span> {{ book.language }}</li>
         <li class="list-group-item text-right"><span class="pull-left"><strong>Genre</strong></span> {{ book.genre }}</li>
+        <li class="list-group-item text-right"><span class="pull-left"><strong>Copies left</strong></span> {{ book.copies_num }}</li>
         <li class="list-group-item text-right"><span class="pull-left"><strong>Tags</strong></span>
         {% for tag in book.tags.all %}
           {{ tag }}{% if not forloop.last %}, {% endif %}
@@ -84,6 +91,15 @@
         <div class="panel-body">
           {% for profile in book.readers.all %}
           <a href="{{ profile.get_absolute_url }}">{{ profile.user.name }}</a>{% if not forloop.last %}, {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">Taken by</div>
+        <div class="panel-body">
+          {% for record in book.get_current_readers_records.all %}
+          <a href="{{ record.user.profile.get_absolute_url }}">{{ record.user.profile.user.name }}</a>{% if not forloop.last %}, {% endif %}
           {% endfor %}
         </div>
       </div>

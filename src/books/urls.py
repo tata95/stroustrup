@@ -17,6 +17,7 @@ urlpatterns = [
     url(r'^isbn_fetch$', views.isbn_info, name='isbn_fetch'),
     url(r'^tag/add/(?P<isbn>[0-9,a-z,A-Z]+)/$', views.AddTag.as_view(), name='add_tag'),
     url(r'^purchase/(?P<isbn>[0-9,a-z,A-Z]+)/$', views.purchase_request, name='purchase'),
+    url(r'^take_return/(?P<isbn>[0-9,a-z,A-Z]+)/$', views.take_return_book, name='take_return'),
 
     url(r'^file/add/(?P<isbn>[0-9]+)/$', views.AddBookFile.as_view(), name='add_file'),
     url(r'^file/edit/(?P<pk>[0-9]+)/$', views.EditBookFile.as_view(), name='edit_file'),

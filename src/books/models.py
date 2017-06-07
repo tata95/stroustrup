@@ -1,4 +1,5 @@
 import os
+import datetime
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.urlresolvers import reverse
@@ -76,6 +77,7 @@ class Book(models.Model):
                                 upload_to=book_picture_path,
                                 null=True,
                                 blank=True)
+    copies_num = models.IntegerField(default=0)
 
     def __str__(self):
         return '{0} ({1}) by {2} [ISBN: {3}]'.format(self.title, self.publish_date.year,
@@ -92,6 +94,31 @@ class Book(models.Model):
 
     def get_rating(self):
         return self.get_upvotes_count() - self.get_downvotes_count()
+
+    def take_book(self, user):
+        if self.copies_num <= 0:
+            return
+        record = ReadersListRecord(book=self, user=user)
+        record.save()
+        self.copies_num -= 1
+        self.save()
+        return record
+
+    def return_book(self, user):
+        record = ReadersListRecord.objects.filter(book=self, user=user,
+                                                  date_returned=None).first()
+        record.date_returned = datetime.datetime.now()
+        record.save()
+        self.copies_num += 1
+        self.save()
+        return True
+
+    def is_taken_by(self, user):
+        record = ReadersListRecord.objects.filter(book=self, user=user, date_returned=None)
+        return True if record else False
+
+    def get_current_readers_records(self):
+        return ReadersListRecord.objects.filter(book=self, date_returned=None).all()
 
     @property
     def authors_names(self):
@@ -126,15 +153,6 @@ class BookTag(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-class BookCopy(models.Model):
-    book = models.ForeignKey(Book, related_name='copies', on_delete=models.CASCADE)
-    condition = models.CharField(max_length=20)
-    arrived = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return '{} copy, ID: {}, condition: {}'.format(self.book.title, self.pk, self.condition)
-
-
 class BookComment(models.Model):
     book = models.ForeignKey(Book, related_name='comments')
     body = models.TextField(null=False)
@@ -151,4 +169,4 @@ class ReadersListRecord(models.Model):
     user = models.ForeignKey(User)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     date_taken = models.DateTimeField(auto_now_add=True, blank=False)
-    date_returned = models.DateTimeField(blank=True)
+    date_returned = models.DateTimeField(null=True, blank=True)

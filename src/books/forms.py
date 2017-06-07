@@ -57,7 +57,7 @@ class BookAdminForm(BookForm):
     class Meta:
         model = Book
         fields = ['isbn', 'title', 'pages', 'publish_date', 'tags', 'description',
-                  'publisher', 'language', 'authors', 'genre', 'picture', 'hidden']
+                  'publisher', 'language', 'authors', 'genre', 'picture', 'hidden', 'copies_num']
 
 
 class BookFileForm(forms.ModelForm):

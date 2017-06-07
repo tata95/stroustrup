@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Sum, Count
 from django.db.models.functions import Coalesce
 
-from books.models import Book
+from books.models import Book, ReadersListRecord
 
 
 class BaseProfile(models.Model):
@@ -27,6 +27,10 @@ class BaseProfile(models.Model):
 
     def get_absolute_url(self):
         return reverse('profiles:show', args=[self.slug])
+
+    def get_taken_books(self):
+        result = self.user.readerslistrecord_set.filter(date_returned=None)
+        return result
 
     def get_recommended_books(self):
         read_books_ids = self.read_books.values_list('pk', flat=True)
