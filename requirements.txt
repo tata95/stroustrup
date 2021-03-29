@@ -28,7 +28,7 @@ Pillow==4.1.1
 prompt-toolkit==1.0.14
 psycopg2==2.7.1
 ptyprocess==0.5.1
-Pygments==2.2.0
+Pygments==2.7.4
 PyJWT==1.5.0
 pyparsing==2.2.0
 python3-openid==3.1.0
