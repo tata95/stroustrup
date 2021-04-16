@@ -7,7 +7,7 @@ Django==1.11.1
 django-authtools==1.5.0
 django-braces==1.11.0
 django-crispy-forms==1.6.1
-django-debug-toolbar==1.8
+django-debug-toolbar==1.11.1
 django-environ==0.4.3
 django-markdown-deux==1.0.5
 django-pagedown==0.1.3
