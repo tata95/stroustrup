@@ -18,7 +18,7 @@ ipython==6.0.0
 ipython-genutils==0.2.0
 isbnlib==3.6.8
 jedi==0.10.2
-markdown2==2.3.4
+markdown2==2.4.0
 oauthlib==2.0.2
 olefile==0.44
 packaging==16.8
